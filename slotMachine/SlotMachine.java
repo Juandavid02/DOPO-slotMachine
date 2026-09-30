@@ -163,7 +163,7 @@ public class SlotMachine
     public void addWheel(int pos)
     {   
         if (!isCerrada()){
-            Wheel wheel = new Wheel(symbols.size());
+            Wheel wheel = new NormalWheel(symbols.size());
             if (pos > wheels.size()){
                 wheels.add(wheel);
                 showMessage("Se agrego una rueda en la ultima posicion");

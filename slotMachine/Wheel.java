@@ -2,10 +2,10 @@ import java.util.Random;
 /**
  * La clase Wheel representa una rueda que contiene un símbolo circular en su interior.
  * Se utiliza para simular ruedas con símbolos visibles como en una máquina tragamonedas
- * @author Juan David Rojas and César Morales
+ * @author Juan David Rojas
  * @version 1.0 (22 agosto 2026)
  */
-public class Wheel
+public abstract class Wheel
 {
     private int visibleIndex;
     private Rectangle wheelFigure;
@@ -166,4 +166,26 @@ public class Wheel
             symbolFigure.makeInvisible();
         }
     }
+    
+    /**
+     * Gira la rueda. La rueda normal se queda con el indice que le dan.
+     * Otros tipos de rueda pueden hacer algo distinto.
+     *
+     * @param indiceAleatorio el indice sorteado por la maquina
+     * @param izquierda la rueda que esta a su izquierda, o null si no hay
+     */
+    public void girar(int indiceAleatorio, Wheel izquierda){
+        visibleIndex = indiceAleatorio;
+    }
+    
+    public boolean puedeIntercambiarse(){
+        return true;
+    }
+    
+    public boolean puedeEliminarse(){
+        return true;
+    }
+    
+    public abstract String getTipo();
+    
 }
