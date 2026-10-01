@@ -14,4 +14,8 @@ public class NormalSymbol extends Symbol
     public NormalSymbol(String color){
         super(color);
     }
+    
+    public String getTipo(){
+        return "normal";
+    }
 }
