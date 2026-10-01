@@ -1,21 +1,27 @@
-
 /**
- * Write a description of class NormalWheel here.
- * 
- * @author (your name) 
- * @version (a version number or a date)
+ * La rueda normal: se comporta como una rueda comun, sin reglas especiales.
+ *
+ * @author Juan David Rojas Heredia
+ * @version 1.0 (septiembre 2026)
  */
 public class NormalWheel extends Wheel
 {
 
     /**
-     * Constructor for objects of class NormalWheel
+     * Crea una rueda normal.
+     *
+     * @param cantSymbols cuantos simbolos hay en la maquina
      */
     public NormalWheel(int cantSymbols)
     {
         super(cantSymbols);
     }
 
+    /**
+     * Dice que tipo de rueda es.
+     *
+     * @return el texto "normal"
+     */
     public String getTipo(){
         return "normal";
     }
