@@ -111,6 +111,48 @@ public class SlotMachineC4Test
             assertEquals("red", machine.configuration()[1]);
         }
     }
+    
+    //Pruebas de lazy
+    @Test
+    public void shouldNotMoveLazyWheelOnSecondSpin(){
+        machine.addSymbol(1, "red");
+        machine.addSymbol(2, "blue");
+        machine.addWheel(1, "lazy");
+        machine.spin();
+        String despuesDelPrimero = machine.configuration()[0];
+        machine.spin();
+        assertEquals(despuesDelPrimero, machine.configuration()[0]);
+    }
+    
+    @Test
+    public void shouldMoveLazyWheelOnFirstSpin(){
+        machine.addSymbol(1, "red");
+        machine.addSymbol(2, "blue");
+        machine.addWheel(1, "lazy");
+        boolean cambio = false;
+        for (int i = 0; i < 50; i++){
+            String antes = machine.configuration()[0];
+            machine.spin();
+            if (!machine.configuration()[0].equals(antes)){
+                cambio = true;
+            }
+            machine.spin();
+        }
+        assertTrue(cambio);
+    }
+    
+    @Test
+    public void shouldRotateLazyWheelWithSteps(){
+        machine.addSymbol(1, "red");
+        machine.addSymbol(2, "blue");
+        machine.addWheel(1, "lazy");
+        machine.placeSymbol(1, "red");
+        machine.spin(1, 1);
+        assertEquals("blue", machine.configuration()[0]);
+        machine.spin(1, 1);
+        assertEquals("red", machine.configuration()[0]);
+    }
+    
     /**
      * Libera el escenario de pruebas.
      * Se ejecuta después de cada método de prueba, eliminando la
