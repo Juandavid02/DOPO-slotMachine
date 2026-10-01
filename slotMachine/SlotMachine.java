@@ -154,16 +154,42 @@ public class SlotMachine
     }
     
     /**
-     * Agrega una nueva rueda a la máquina tragamonedas en la posición indicada.
-     * Si la posición es mayor que el número de ruedas, la rueda se agrega
-     * al final. Si la posición es menor que uno, se agrega al principio.
+     * Agrega una rueda normal en la posicion indicada.
      *
-     * @param pos la posición deseada para la nueva rueda
+     * @param pos la posicion deseada para la nueva rueda
      */
     public void addWheel(int pos)
-    {   
+    {
+        addWheel(pos, "normal");
+    }
+
+    /**
+     * Agrega una rueda del tipo indicado en la posicion indicada.
+     * Los tipos son "normal", "lefty" y "rebel". Si la posicion es mayor
+     * que el numero de ruedas, se agrega al final. Si es menor que uno,
+     * se agrega al principio. Si el tipo no existe, no se agrega nada.
+     *
+     * @param pos la posicion deseada para la nueva rueda
+     * @param tipo el tipo de rueda que se desea agregar
+     */
+    public void addWheel(int pos, String tipo)
+    {
         if (!isCerrada()){
-            Wheel wheel = new NormalWheel(symbols.size());
+            Wheel wheel;
+            if (tipo.equals("normal")){
+                wheel = new NormalWheel(symbols.size());
+            }
+            else if (tipo.equals("lefty")){
+                wheel = new LeftyWheel(symbols.size());
+            }
+            else if (tipo.equals("rebel")){
+                wheel = new RebelWheel(symbols.size());
+            }
+            else {
+                showMessage("Accion no permitida: El tipo de rueda no existe.");
+                ok = false;
+                return;
+            }
             if (pos > wheels.size()){
                 wheels.add(wheel);
                 showMessage("Se agrego una rueda en la ultima posicion");
@@ -175,10 +201,14 @@ public class SlotMachine
             else {
                 wheels.add(pos - 1, wheel);
             }
-            ok=true;
+            ok = true;
             actualizar();
             verificarJackpot();
         }
+    }
+    
+    public void addWheel(String type, int pos){
+        
     }
     
     /**
@@ -193,24 +223,34 @@ public class SlotMachine
     {   
         if (!isCerrada()){
             if (!wheels.isEmpty()){
+                int index;
+                String mensaje = "";
                 if (pos < 1 ){
-                    wheels.get(0).makeInvisible();
-                    wheels.remove(0);
-                    showMessage("Se elimino la primera rueda");
+                    index = 0;
+                    mensaje = "Se elimino la primera rueda";
                 }
                 else if (pos > wheels.size()){
-                    wheels.get(wheels.size() - 1).makeInvisible();                
-                    wheels.remove(wheels.size() - 1);
-                    showMessage("Se elimino la ultima rueda");
+                    index = wheels.size() - 1;
+                    mensaje = "Se elimino la ultima rueda";
                 }
                 else{
-                    wheels.get(pos - 1).makeInvisible();
-                    wheels.remove(pos - 1);
+                    index = pos - 1;
                 }
-                ok = true;
+                if (wheels.get(index).puedeEliminarse()){
+                    wheels.get(index).makeInvisible();
+                    wheels.remove(index);
+                    ok = true;
+                    if (!mensaje.equals("")){
+                        showMessage(mensaje);
+                    }
+                }
+                else{
+                    showMessage("Accion no permitida: La rueda no se deja eliminar");
+                    ok = false;
+                }
             }
             else {
-                showMessage("Accion no permitida: No hay paredes para eliminar");
+                showMessage("Accion no permitida: No hay ruedas para eliminar");
                 ok = false;
             }
             actualizar();
@@ -248,6 +288,10 @@ public class SlotMachine
                     if (wheels.get(wheel1 - 1).isLocked() || wheels.get(wheel2 - 1).isLocked()){
                         ok = false;
                         showMessage("Accion no permitida: Una de las ruedas esta bloqueada.");
+                    }
+                    else if (!wheels.get(wheel1 - 1).puedeIntercambiarse() || !wheels.get(wheel2 - 1).puedeIntercambiarse()){
+                        ok = false;
+                        showMessage("Accion no permitida: Una de las ruedas no se deja intercambiar.");
                     }
                     else{
                         int idx1 = wheels.get(wheel1 - 1).getVisibleIndex();
@@ -297,11 +341,17 @@ public class SlotMachine
                     flag = true;
                 }
                 wheels.get(wheel-1).setLocked(true);
-                ok = true;
-                if (flag){
-                        showMessage(mensaje);
-                    } 
-                actualizar();
+                if (wheels.get(wheel-1).isLocked()){
+                    ok = true;
+                    if (flag){
+                            showMessage(mensaje);
+                        } 
+                    actualizar();
+                }
+                else{
+                    showMessage("Accion no permitida: la rueda no se deja bloquear.");
+                    ok = false;
+                }
             }
             else{
                 showMessage("Accion no permitida: No hay ruedas para bloquear.");
@@ -509,7 +559,8 @@ public class SlotMachine
             //.nextInt es un metodo de Random que genera un número entero aleatorio
             // entre 0 (incluido) y symbols.size() (excluido). Este metodo fue consultado desde la API de JAVA
             int randomIndex = random.nextInt(symbols.size());
-            wheels.get(wheel - 1).setVisibleIndex(randomIndex);
+            Wheel izquierda = wheel > 1 ? wheels.get(wheel - 2) : null;
+            wheels.get(wheel - 1).girar(randomIndex, izquierda);
         }
     }
     

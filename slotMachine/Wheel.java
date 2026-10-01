@@ -187,5 +187,4 @@ public abstract class Wheel
     }
     
     public abstract String getTipo();
-    
 }
