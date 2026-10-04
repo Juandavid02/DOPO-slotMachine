@@ -33,6 +33,7 @@ public class LeftyWheel extends Wheel
      *
      * @param indiceAleatorio el indice sorteado por la maquina
      * @param izquierda la rueda que esta a su izquierda, o null si no hay
+     * @return siempre true, porque esta rueda siempre se mueve
      */
     @Override
     public boolean girar(int indiceAleatorio, Wheel izquierda){

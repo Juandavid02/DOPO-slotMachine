@@ -1,5 +1,8 @@
 /**
- * Un simbolo de la maquina tragamonedas. Por ahora solo guarda su color.
+ * Un simbolo de la maquina tragamonedas. Guarda su color y define lo que
+ * todos los simbolos tienen en comun: su tamano, si se ve o no, y que pasa
+ * cuando una rueda lo selecciona. Cada tipo de simbolo cambia lo que necesite
+ * y define su forma y su tipo.
  *
  * @author Juan David Rojas Heredia
  * @version 1.0 (septiembre 2026)
@@ -37,6 +40,7 @@ public abstract class Symbol
     
     /**
      * Devuelve el tamano del simbolo en la rueda dada.
+     * Por defecto es el tamano normal.
      *
      * @param rueda la rueda que muestra el simbolo
      * @return el tamano del simbolo
@@ -47,6 +51,7 @@ public abstract class Symbol
     
     /**
      * Dice si el simbolo se debe ver en la rueda dada.
+     * Por defecto siempre se ve.
      *
      * @param rueda la rueda que muestra el simbolo
      * @return true si se ve, false si no
@@ -65,7 +70,7 @@ public abstract class Symbol
     /**
      * Dice que tipo de simbolo es.
      *
-     * @return el nombre del tipo
+     * @return el nombre del tipo ("normal", "ephemeral" o "shy")
      */
     public abstract String getTipo();
 }

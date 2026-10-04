@@ -7,8 +7,10 @@ import java.util.HashSet;
  * @author Juan David Rojas Heredia
  * @version 1.0 (octubre 2026)
  */
-public class ShySymbol extends Symbol{
-    private Set<Wheel> ocultoEn;
+public class ShySymbol extends Symbol
+{
+    private Set<Wheel> ocultoEn;   // las ruedas en las que el simbolo esta invisible ahora
+
     /**
      * Crea un simbolo shy con el color dado.
      * Empieza visible.
@@ -52,6 +54,7 @@ public class ShySymbol extends Symbol{
      *
      * @return el texto "shy"
      */
+    @Override
     public String getTipo(){
         return "shy";
     }

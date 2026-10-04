@@ -1,5 +1,5 @@
 /**
- * La rueda lazy: es perezosa, solo se mueve cada dos giros al azar.
+ * La rueda lazy: es perezosa, solo se mueve una de cada dos veces que gira.
  * En el primer giro se mueve, en el segundo se queda quieta, y asi
  * sucesivamente.
  *
@@ -8,7 +8,7 @@
  */
 public class LazyWheel extends Wheel
 {
-    private boolean gira;
+    private boolean gira;   // true si en el proximo giro si se mueve
 
     /**
      * Crea una rueda lazy. El primer giro si la mueve.
@@ -36,7 +36,7 @@ public class LazyWheel extends Wheel
      * con el indice que le dan; cuando no, se queda como estaba.
      *
      * @param indiceAleatorio el indice sorteado por la maquina
-     * @param izquierda la rueda que esta a su izquierda, o null si no hay
+     * @param izquierda la rueda que esta a su izquierda (esta rueda no la usa)
      * @return true si esta vez se movio, false si se quedo quieta
      */
     @Override
@@ -50,9 +50,9 @@ public class LazyWheel extends Wheel
     }
     
     /**
-     * Dice de que color se dibuja el cuerpo de la rueda lefty.
+     * Dice de que color se dibuja el cuerpo de la rueda lazy.
      *
-     * @return el texto "pink"
+     * @return el texto "lightGray"
      */
     @Override
     public String getColorCuerpo(){

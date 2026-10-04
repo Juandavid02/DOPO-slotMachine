@@ -9,7 +9,7 @@ import java.util.HashMap;
  */
 public class EphemeralSymbol extends Symbol
 {
-    private Map<Wheel, Integer> tamanos;
+    private Map<Wheel, Integer> tamanos;   // el tamano actual del simbolo en cada rueda
 
     /**
      * Crea un simbolo ephemeral con el color dado.
@@ -36,6 +36,7 @@ public class EphemeralSymbol extends Symbol
     
     /**
      * Devuelve el tamano actual del simbolo en la rueda dada.
+     * Si esa rueda nunca lo ha seleccionado, es el tamano normal.
      *
      * @param rueda la rueda que muestra el simbolo
      * @return el tamano actual en esa rueda
@@ -49,6 +50,12 @@ public class EphemeralSymbol extends Symbol
         return tamano;
     }
     
+    /**
+     * Dice que tipo de simbolo es.
+     *
+     * @return el texto "ephemeral"
+     */
+    @Override
     public String getTipo(){
         return "ephemeral";
     }

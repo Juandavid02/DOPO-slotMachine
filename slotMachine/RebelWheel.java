@@ -31,7 +31,6 @@ public class RebelWheel extends Wheel
      *
      * @return siempre false
      */
-    
     @Override
     public boolean puedeIntercambiarse(){
         return false;
@@ -54,14 +53,15 @@ public class RebelWheel extends Wheel
      */
     @Override
     public void setLocked(boolean value){
-         // la rueda rebelde no se deja bloquear, asi que no se hace nada. 
-         // IA generativa: Para poder saber que si un metodo no hace nada false por el constructor
+        // No se hace nada a proposito: locked se queda en false,
+        // que es el valor que le pone el constructor de Wheel.
+        // IA generativa
     }
     
     /**
-     * Dice de que color se dibuja el cuerpo de la rueda lefty.
+     * Dice de que color se dibuja el cuerpo de la rueda rebelde.
      *
-     * @return el texto "pink"
+     * @return el texto "brown"
      */
     @Override
     public String getColorCuerpo(){
