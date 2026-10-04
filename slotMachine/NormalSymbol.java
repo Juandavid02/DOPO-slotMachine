@@ -34,5 +34,4 @@ public class NormalSymbol extends Symbol
     public String getForma(){
         return "circulo";
     }
-    
 }

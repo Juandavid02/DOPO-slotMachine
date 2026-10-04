@@ -1,12 +1,11 @@
 /**
- * La rueda normal: se comporta como una rueda comun, sin reglas especiales.
+ * La rueda normal: se comporta como una rueda comun, sin reglas especiales y era la que se tenia.
  *
  * @author Juan David Rojas Heredia
  * @version 1.0 (septiembre 2026)
  */
 public class NormalWheel extends Wheel
 {
-
     /**
      * Crea una rueda normal.
      *
@@ -22,9 +21,11 @@ public class NormalWheel extends Wheel
      *
      * @return el texto "normal"
      */
+    @Override
     public String getTipo(){
         return "normal";
     }
+
     /**
      * Dice de que color se dibuja el cuerpo de la rueda normal.
      *

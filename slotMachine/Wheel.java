@@ -1,8 +1,11 @@
 import java.util.Random;
 /**
- * La clase Wheel representa una rueda que contiene un símbolo circular en su interior.
- * Se utiliza para simular ruedas con símbolos visibles como en una máquina tragamonedas
- * @author Juan David Rojas
+ * La clase Wheel es la rueda base de la maquina. Tiene un cuerpo cuadrado y
+ * un simbolo que puede ser un circulo, un cuadrado o un triangulo.
+ * Es abstracta: cada tipo de rueda (normal, lefty, lazy, rebel) decide su
+ * color, su tipo y como se comporta al girar.
+ *
+ * @author Juan David Rojas Heredia
  * @version 1.0 (22 agosto 2026)
  */
 public abstract class Wheel
@@ -15,19 +18,20 @@ public abstract class Wheel
     private String forma = "circulo";
     private String colorSimbolo = "red";
     private int tamanoSimbolo = Medida.TAMANO_SIMBOLO.getValor();
-    private int desplazamientoCuadrado = 0;
+    private int desplazamientoCuadrado = 0;   // lo que se ha corrido el cuadrado para mantenerlo centrado
     private boolean locked;
     private boolean figurasCreadas;
     private int currentX;
     private int currentY;
-     /**
+
+    /**
      * Constructor de la clase Wheel.
-     * Inicializa la rueda con un número de símbolos y asigna un índice visible aleatorio.
-     * También crea las figuras gráficas (rectángulo y círculo) y las posiciona.
+     * Deja un indice visible aleatorio, la rueda desbloqueada y en la posicion (0, 0).
+     * Las figuras no se crean aqui, se crean la primera vez que se necesitan.
      *
-     * @param cantSymbols número total de símbolos posibles en la rueda.
-     *  Si es mayor que 0, se selecciona un índice aleatorio.
-     *  Si es 0 o negativo, el índice visible será 0.
+     * @param cantSymbols numero total de simbolos posibles en la rueda.
+     *  Si es mayor que 0, se selecciona un indice aleatorio.
+     *  Si es 0 o negativo, el indice visible sera 0.
      */
     public Wheel(int cantSymbols)
     {
@@ -80,7 +84,7 @@ public abstract class Wheel
         return visibleIndex;
     }
     
-     /**
+    /**
      * Establece manualmente el índice del símbolo visible.
      *
      * @param index nuevo índice del símbolo visible.
@@ -90,6 +94,11 @@ public abstract class Wheel
         visibleIndex = index;
     }
     
+    /**
+     * Cambia el color del simbolo. Se ve cuando se llama makeVisible.
+     *
+     * @param color el nuevo color del simbolo
+     */
     public void changeColor(String color){
         crearFiguras();
         colorSimbolo = color;
@@ -122,8 +131,8 @@ public abstract class Wheel
     }
     
     /**
-     * Permite modificar el estado de las ruedas para que esten 
-     * bloquadas o desbloqueadas
+     * Permite bloquear o desbloquear la rueda.
+     * Algunas ruedas (como la rebelde) no se dejan bloquear.
      *
      * @param value true para bloquear la rueda, false para permitir que gire.
      */
@@ -141,8 +150,9 @@ public abstract class Wheel
     }
     
     /**
-     * Rota la rueda un número de pasos (hacia adelante o hacia atras), avanzando el índice
-     * visible circulatmente según el total de símbolos disponibles
+     * Rota la rueda un número de pasos (hacia adelante o hacia atrás), moviendo el índice
+     * visible de forma circular según el total de símbolos disponibles.
+     * Si totalSymbols es 0 o negativo no hace nada.
      *
      * @param steps número de pasos que debe avanzar la rueda
      * @param totalSymbols número total de símbolos disponibles en la máquina
@@ -184,20 +194,27 @@ public abstract class Wheel
         trianguloFigure.makeInvisible();
     }
     
+    /**
+     * Muestra la rueda en pantalla. Si flag es true tambien muestra el simbolo,
+     * con la forma, el tamano y el color que tenga la rueda en ese momento.
+     * Si flag es false solo se ve el cuerpo de la rueda.
+     *
+     * @param flag true para mostrar tambien el simbolo, false para mostrar solo la rueda
+     */
     public void makeVisible(boolean flag){
         crearFiguras();
         wheelFigure.makeVisible();
         ocultarSimbolo();
         if (flag){
             if (forma.equals("cuadrado")){
-            // Se mueve la mitad de lo que se achico para que quede en el centro IA generativa
-            int desplazamiento = (Medida.TAMANO_SIMBOLO.getValor() - tamanoSimbolo) / 2;
-            cuadradoFigure.changeSize(tamanoSimbolo, tamanoSimbolo);
-            cuadradoFigure.moveHorizontal(desplazamiento - desplazamientoCuadrado);
-            cuadradoFigure.moveVertical(desplazamiento - desplazamientoCuadrado);
-            desplazamientoCuadrado = desplazamiento;
-            cuadradoFigure.changeColor(colorSimbolo);
-            cuadradoFigure.makeVisible();
+                // Se mueve la mitad de lo que se achico para que quede en el centro IA generativa
+                int desplazamiento = (Medida.TAMANO_SIMBOLO.getValor() - tamanoSimbolo) / 2;
+                cuadradoFigure.changeSize(tamanoSimbolo, tamanoSimbolo);
+                cuadradoFigure.moveHorizontal(desplazamiento - desplazamientoCuadrado);
+                cuadradoFigure.moveVertical(desplazamiento - desplazamientoCuadrado);
+                desplazamientoCuadrado = desplazamiento;
+                cuadradoFigure.changeColor(colorSimbolo);
+                cuadradoFigure.makeVisible();
             }
             else if (forma.equals("triangulo")){
                 trianguloFigure.changeSize(tamanoSimbolo, tamanoSimbolo);
@@ -236,10 +253,22 @@ public abstract class Wheel
         return true;
     }
     
+    /**
+     * Dice si esta rueda se puede intercambiar con otra.
+     * Por defecto si se puede; la rueda rebelde lo cambia.
+     *
+     * @return true si se puede intercambiar, false si no
+     */
     public boolean puedeIntercambiarse(){
         return true;
     }
     
+    /**
+     * Dice si esta rueda se puede eliminar de la maquina.
+     * Por defecto si se puede; la rueda rebelde lo cambia.
+     *
+     * @return true si se puede eliminar, false si no
+     */
     public boolean puedeEliminarse(){
         return true;
     }
@@ -252,5 +281,11 @@ public abstract class Wheel
      */
     public abstract String getColorCuerpo();
     
+    /**
+     * Devuelve el nombre del tipo de rueda ("normal", "lefty", "lazy" o "rebel").
+     * Cada tipo de rueda lo define.
+     *
+     * @return el nombre del tipo de rueda
+     */
     public abstract String getTipo();
 }

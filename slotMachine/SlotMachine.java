@@ -7,23 +7,24 @@ import java.util.Collections;//Poder usar el shuffle
 import javax.swing.JOptionPane;
 /**
  * Una máquina tragamonedas que puede contener múltiples ruedas y símbolos.
- * Las ruedas pueden girarse aleatoriamente o configurarse para mostrar
- * símbolos específicos. La máquina también puede detectar cuando ocurre
- * un jackpot.
+ * Las ruedas pueden ser de varios tipos (normal, lefty, lazy y rebel) y los
+ * símbolos también (normal, ephemeral y shy). Las ruedas pueden girarse
+ * aleatoriamente o configurarse para mostrar símbolos específicos. La máquina
+ * también puede detectar cuando ocurre un jackpot y se puede cerrar con exit().
  *
- * @author Juan David Rojas and César Morales
- * @version 1.0 (22 August 2026)
+ * @author Juan David Rojas Heredia
+ * @version 1.0 (22 agosto 2026)
  */
 public class SlotMachine
 {
     private List<Wheel> wheels; 
     private List<Symbol> symbols;
     private boolean visible;
-    private boolean ok;
-    private boolean cerrada;
-    private boolean girada;
+    private boolean ok;          // si la ultima operacion salio bien
+    private boolean cerrada;     // true despues de llamar exit()
+    private boolean girada;      // true si ya se giro o se coloco algun simbolo
     private boolean figurasCreadas;
-    private boolean ganada = false;
+    private boolean ganada = false;   // si la maquina esta en jackpot en este momento
     private String lastMessage;
     private Random random;
     private Rectangle machine;
@@ -32,11 +33,9 @@ public class SlotMachine
     private Circle perilla;
     
     /**
-     * Creates a new slot machine.
-     * Initializes the lists of reels and symbols, the random number generator,
-     * and the machine's graphical representation.
-     * Initially, the machine is visible, and the "last move" state indicates
-     * it has been shifted by an equal amount both horizontally and vertically.
+     * Crea una máquina tragamonedas vacía, sin ruedas ni símbolos.
+     * Empieza visible y con la última operación marcada como exitosa.
+     * Las figuras no se crean aquí, se crean la primera vez que se dibuja la máquina.
      */
     public SlotMachine(){
         wheels = new ArrayList<Wheel>();
@@ -49,8 +48,9 @@ public class SlotMachine
         figurasCreadas = false; 
     }
     /**
-     * Crea una nueva máquina tragamonedas con exactamente n ruedas y n
-     * símbolos, inicializada de forma aleatoria. La
+     * Crea una nueva máquina tragamonedas con exactamente n ruedas normales y n
+     * símbolos normales de colores al azar. Si n es mayor que 8 se usa 8 y si
+     * es menor que 1 se usa 1 (solo hay 8 colores disponibles). La
      * máquina queda invisible por defecto, como corresponde a su uso de resolver el problema sin revelar el estado de las ruedas.
      *
      * @param n el número de ruedas (y de símbolos) que tendrá la máquina.
@@ -82,7 +82,13 @@ public class SlotMachine
             addWheel(i + 1);
         }
     }
+    
     //Ayuda de IA para darnos la de idea de como hacer las figuras sin necesidad de usar el Construstor
+    /**
+     * Crea las figuras de la máquina: el cuerpo, los dos brazos y la perilla.
+     * Solo se crean la primera vez. Si la máquina ya estaba en jackpot,
+     * las pinta con los colores de celebración.
+     */
     private void crearFiguras(){
         if (!figurasCreadas){
             int margenX = Medida.MARGEN_X.getValor();
@@ -146,6 +152,7 @@ public class SlotMachine
     
     /**
      * Agrega una rueda normal en la posicion indicada.
+     * Es un atajo para addWheel con el tipo "normal".
      *
      * @param pos la posicion deseada para la nueva rueda
      */
@@ -160,8 +167,8 @@ public class SlotMachine
      * que el numero de ruedas, se agrega al final. Si es menor que uno,
      * se agrega al principio. Si el tipo no existe, no se agrega nada.
      *
+     * @param type el tipo de rueda que se desea agregar
      * @param pos la posicion deseada para la nueva rueda
-     * @param tipo el tipo de rueda que se desea agregar
      */
     public void addWheel(String type, int pos)
     {
@@ -205,7 +212,8 @@ public class SlotMachine
      * Elimina una rueda de la máquina tragamonedas en la posición indicada.
      * Si la posición es menor que uno, se elimina la primera rueda.
      * Si la posición es mayor que el número de ruedas, se elimina la última
-     * rueda.
+     * rueda. Si la rueda no se deja eliminar (como la rebelde) o no hay
+     * ruedas, no se elimina nada y se muestra un mensaje.
      *
      * @param pos la posición de la rueda que se desea eliminar
      */
@@ -248,6 +256,16 @@ public class SlotMachine
         }
     }
     
+    /**
+     * Intercambia los simbolos que muestran dos ruedas.
+     * Si una posicion es menor que uno se usa la primera rueda, y si es mayor
+     * que el numero de ruedas se usa la ultima (con un mensaje informativo).
+     * No se intercambia si las dos ruedas son la misma, si alguna esta
+     * bloqueada o si alguna no se deja intercambiar (como la rebelde).
+     *
+     * @param wheel1 la posicion de la primera rueda
+     * @param wheel2 la posicion de la segunda rueda
+     */
     public void swap(int wheel1, int wheel2){
         if (!isCerrada()){
             if (!wheels.isEmpty()){
@@ -311,7 +329,8 @@ public class SlotMachine
      * de giro (spin). Si la posición indicada es menor que uno, se bloquea
      * la primera rueda; si es mayor que el número de ruedas, se bloquea la
      * última, mostrando en ambos casos un mensaje informativo. La operación
-     * solo se realiza si la máquina tiene al menos una rueda.
+     * solo se realiza si la máquina tiene al menos una rueda. Si la rueda
+     * no se deja bloquear (como la rebelde), muestra un mensaje y no la bloquea.
      *
      * @param wheel la posición de la rueda que se desea bloquear
      */ 
@@ -510,6 +529,7 @@ public class SlotMachine
     
     /**
      * Elimina un símbolo de la máquina tragamonedas.
+     * Las ruedas que lo estaban mostrando pasan a mostrar el primer símbolo.
      * Si el símbolo indicado no existe, la operación no se realiza
      * y se muestra un mensaje de error.
      *
@@ -583,6 +603,13 @@ public class SlotMachine
         }
     }    
     
+    /**
+     * Le avisa al simbolo que la rueda en la posicion dada lo esta mostrando
+     * (por ejemplo, el ephemeral se encoge y el shy cambia de visibilidad).
+     * No hace nada si no hay simbolos.
+     *
+     * @param index la posicion de la rueda en la lista (empieza en 0)
+     */
     private void avisarSeleccion(int index){
         if (!symbols.isEmpty()){
             Wheel rueda = wheels.get(index);
@@ -591,17 +618,19 @@ public class SlotMachine
     }
     
     /**
-     * Gira una rueda específica y la establece en un símbolo seleccionado
-     * aleatoriamente, siempre que dicha rueda no esté bloqueada. La posición
-     * de la rueda se ajusta a la primera o última rueda si la posición
-     * indicada está fuera del rango válido. Si la rueda se encuentra
-     * bloqueada (locked), no se modifica su símbolo visible.
+     * Gira una rueda específica con un índice aleatorio, siempre que dicha
+     * rueda no esté bloqueada. Cada tipo de rueda decide qué hace con ese
+     * índice (la lefty copia a su vecina, la lazy a veces se queda quieta).
+     * Si la rueda se movió, se le avisa al símbolo que quedó visible.
+     * La posición de la rueda se ajusta a la primera o última rueda si la
+     * posición indicada está fuera del rango válido.
+     * <p>
+     * Este método es privado porque es una operación interna utilizada
+     * por la máquina tragamonedas al realizar un giro y no debe ser
+     * llamada directamente desde fuera de la clase.
      *
      * @param wheel la posición de la rueda que se desea girar
      */
-    // Este método es privado porque es una operación interna utilizada
-    // por la máquina tragamonedas al realizar un giro y no debe ser
-    // llamada directamente desde fuera de la clase.
     private void turnWheel(int wheel){
         if (wheel <= 1){
             wheel = 1;
@@ -623,7 +652,8 @@ public class SlotMachine
     
     /**
      * Gira la rueda indicada de la máquina tragamonedas.
-     * La rueda se establece en un símbolo seleccionado aleatoriamente.
+     * La rueda se gira con un símbolo seleccionado aleatoriamente, según
+     * las reglas de su tipo. Si está bloqueada no cambia.
      * La operación solo se realiza si hay ruedas y símbolos disponibles.
      *
      * @param wheel la posición de la rueda que se desea girar
@@ -649,7 +679,8 @@ public class SlotMachine
      * Rota una rueda específica un número determinado de pasos (ya sea hacia adelante o hacia atras).
      * Si la máquina está visible, muestra el avance paso a paso con una pequeña
      * pausa entre cada paso; si está invisible, calcula el resultado final
-     * de inmediato sin tocar el Canvas ni ninguna figura.
+     * de inmediato sin tocar el Canvas ni ninguna figura. Al final le avisa
+     * al símbolo que quedó visible. No rota si la rueda está bloqueada.
      *
      * @param wheel la posición de la rueda que se desea rotar
      * @param steps el número de pasos que debe avanzar la rueda
@@ -698,7 +729,7 @@ public class SlotMachine
      * recibido, en el mismo orden de las ruedas.
      * La operación solo se realiza si el número de símbolos coincide con el
      * número de ruedas, y si todos los símbolos indicados existen entre los
-     * símbolos disponibles.
+     * símbolos disponibles. Las ruedas bloqueadas no cambian (se avisa con un mensaje).
      *
      * @param setSymbols un arreglo con el símbolo que se desea asignar a cada
      * rueda, en el mismo orden que las ruedas
@@ -753,7 +784,8 @@ public class SlotMachine
     
     /**
      * Gira todas las ruedas de la máquina tragamonedas.
-     * Cada rueda se establece en un símbolo seleccionado aleatoriamente.
+     * Cada rueda se gira con un símbolo seleccionado aleatoriamente, según
+     * las reglas de su tipo. Las ruedas bloqueadas no cambian.
      * La operación solo se realiza si hay ruedas y símbolos disponibles.
      */
     public void spin()
@@ -775,13 +807,13 @@ public class SlotMachine
         }
     }
 
+    // Uso de IA generativa para comprender como pasar la lista de simbolos a un arreglo.
     /**
      * Obtiene todos los símbolos disponibles en la máquina tragamonedas.
+     * Se devuelven como un arreglo con el color de cada símbolo, en el orden en que están.
      *
-     * @return un arreglo que contiene todos los símbolos disponibles
+     * @return un arreglo con el color de cada símbolo disponible
      */ 
-    // Uso de IA generativa para comprender el uso de toArray().
-    // Este método convierte la lista de símbolos en un arreglo de tipo String[].
     public String[] symbols()
     {
         String [] colores = new String[symbols.size()];
@@ -791,15 +823,16 @@ public class SlotMachine
         return colores;
     }
     
+    //String[] es un arreglo con tamaño fijo accediendo con config[i]
     /**
      * Obtiene la configuración actual de la máquina tragamonedas.
-     * La configuración contiene el símbolo que se muestra actualmente
-     * en cada rueda, en el mismo orden de las ruedas.
+     * La configuración contiene el color del símbolo que se muestra actualmente
+     * en cada rueda, en el mismo orden de las ruedas. Si no hay símbolos,
+     * cada posición queda en null.
      *
-     * @return un arreglo que contiene el símbolo actual de cada rueda o null si 
+     * @return un arreglo con el color del símbolo actual de cada rueda, o null si 
      * la maquina esta cerrada
      */
-    //String[] es un arreglo con tamaño fijo accediendo con config[i]
     public String[] configuration(){
         if (!isCerrada()){
             String [] config = new String[wheels.size()];
@@ -897,7 +930,8 @@ public class SlotMachine
     /**
      * Hace visible la máquina tragamonedas junto con todos sus componentes
      * gráficos (cuerpo, brazos, perilla y ruedas). 
-     * Ademas cambia el valor de visble a true
+     * Además cambia el valor de visible a true y, si hay jackpot,
+     * pinta los colores de celebración.
      */
     public void makeVisible(){
         if (!isCerrada()){
@@ -980,8 +1014,9 @@ public class SlotMachine
     
     /**
      * Cambia el color del cuerpo, los brazos y la perilla según se esté
-     * celebrando un jackpot o no. Si las figuras aún no se han creado, no hace
-     * nada (crearFiguras aplica el color correcto al crearlas).
+     * celebrando un jackpot o no. Si las figuras aún no se han creado o la
+     * máquina está invisible, no hace nada (crearFiguras aplica el color
+     * correcto al crearlas).
      *
      * @param celebrando true para los colores de jackpot, false para los normales
      */
@@ -1004,7 +1039,7 @@ public class SlotMachine
      * Verifica si la máquina ya fue cerrada con exit(). Si es así, muestra
      * un mensaje informativo y marca la operación como no exitosa.
      *
-     * @return true si la máquina está cerrada false en caso contrario
+     * @return true si la máquina está cerrada, false en caso contrario
      */
     private boolean isCerrada(){
         if (cerrada){
@@ -1016,7 +1051,7 @@ public class SlotMachine
 
     /**
      * Cierra definitivamente la máquina tragamonedas.
-     * la máquina se oculta y queda bloqueada de
+     * La máquina se oculta y queda bloqueada de
      * forma permanente: ya no se pueden agregar ni eliminar ruedas o símbolos,
      * girar, bloquear/desbloquear ruedas, ni volver a hacerla visible.
      * Tampoco se podrá consultar su configuración final ni si
