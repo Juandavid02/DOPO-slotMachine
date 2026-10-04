@@ -540,7 +540,6 @@ public class SlotMachine
         if (!isCerrada()){
             int indice = indiceDe(color);
             if (indice == -1){
-                
                 showMessage("Accion no permitida: No se puede eliminar el símbolo " + color + " porque no existe.");
                 ok = false;
             }
@@ -624,7 +623,7 @@ public class SlotMachine
      * Si la rueda se movió, se le avisa al símbolo que quedó visible.
      * La posición de la rueda se ajusta a la primera o última rueda si la
      * posición indicada está fuera del rango válido.
-     * <p>
+     * 
      * Este método es privado porque es una operación interna utilizada
      * por la máquina tragamonedas al realizar un giro y no debe ser
      * llamada directamente desde fuera de la clase.
