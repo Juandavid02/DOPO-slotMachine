@@ -57,4 +57,14 @@ public class RebelWheel extends Wheel
          // la rueda rebelde no se deja bloquear, asi que no se hace nada. 
          // IA generativa: Para poder saber que si un metodo no hace nada false por el constructor
     }
+    
+    /**
+     * Dice de que color se dibuja el cuerpo de la rueda lefty.
+     *
+     * @return el texto "pink"
+     */
+    @Override
+    public String getColorCuerpo(){
+        return "brown";
+    }
 }

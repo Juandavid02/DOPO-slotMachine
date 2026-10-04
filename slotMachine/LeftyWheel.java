@@ -35,12 +35,23 @@ public class LeftyWheel extends Wheel
      * @param izquierda la rueda que esta a su izquierda, o null si no hay
      */
     @Override
-    public void girar(int indiceAleatorio, Wheel izquierda){
+    public boolean girar(int indiceAleatorio, Wheel izquierda){
         if (izquierda != null){
             setVisibleIndex(izquierda.getVisibleIndex());
         }
         else{
             setVisibleIndex(indiceAleatorio);
         }
+        return true;
+    }
+    
+    /**
+     * Dice de que color se dibuja el cuerpo de la rueda lefty.
+     *
+     * @return el texto "pink"
+     */
+    @Override
+    public String getColorCuerpo(){
+        return "pink";
     }
 }

@@ -1,3 +1,5 @@
+import java.util.Map;
+import java.util.HashMap;
 /**
  * El simbolo ephemeral: cada vez que lo seleccionan se hace mas
  * pequeno, hasta quedar como un punto.
@@ -7,9 +9,8 @@
  */
 public class EphemeralSymbol extends Symbol
 {
-    private int tamano;
-    private static final int MINIMO = 2;
-    private static final int PASO = 5;
+    private Map<Wheel, Integer> tamanos;
+
     /**
      * Crea un simbolo ephemeral con el color dado.
      * Empieza con el tamano normal.
@@ -18,29 +19,47 @@ public class EphemeralSymbol extends Symbol
      */
     public EphemeralSymbol(String color){
         super(color);
-        tamano = TAMANO_NORMAL;
+        tamanos = new HashMap<Wheel, Integer>();
     }
-    
-     /**
-     * Cada vez que lo seleccionan se encoge un poco, pero nunca
-     * por debajo del tamano de un punto.
+
+    /**
+     * Cada vez que una rueda lo selecciona, en esa rueda se encoge un poco,
+     * pero nunca por debajo del tamano de un punto.
+     *
+     * @param rueda la rueda que lo selecciono
      */
     @Override
-    public void seleccionado(){
-        tamano = Math.max(MINIMO, tamano - PASO);
+    public void seleccionado(Wheel rueda){
+        int nuevo = getTamano(rueda) - Medida.PASO_ENCOGER.getValor();
+        tamanos.put(rueda, Math.max(Medida.TAMANO_MINIMO.getValor(), nuevo));
     }
     
     /**
-     * Devuelve el tamano actual del simbolo.
+     * Devuelve el tamano actual del simbolo en la rueda dada.
      *
-     * @return el tamano actual
+     * @param rueda la rueda que muestra el simbolo
+     * @return el tamano actual en esa rueda
      */
     @Override
-    public int getTamano(){
+    public int getTamano(Wheel rueda){
+        Integer tamano = tamanos.get(rueda);
+        if (tamano == null){
+            return Medida.TAMANO_SIMBOLO.getValor();
+        }
         return tamano;
     }
     
     public String getTipo(){
         return "ephemeral";
+    }
+    
+    /**
+     * El simbolo ephemeral se dibuja como un cuadrado.
+     *
+     * @return el texto "cuadrado"
+     */
+    @Override
+    public String getForma(){
+        return "cuadrado";
     }
 }

@@ -30,12 +30,6 @@ public class SlotMachine
     private Rectangle brazoHorizontal;
     private Rectangle brazoVertical;
     private Circle perilla;
-
-    // Variables constantes para dejar espacio tanto arriba como a la derecha
-    private static final int MARGIN_X = 60;
-    private static final int MARGIN_Y = 30;
-    private static final int GAP = 25;
-    private static final int WHEEL_WIDTH = 70;
     
     /**
      * Creates a new slot machine.
@@ -89,41 +83,38 @@ public class SlotMachine
         }
     }
     //Ayuda de IA para darnos la de idea de como hacer las figuras sin necesidad de usar el Construstor
-    /**
-     * Crea las figuras gráficas de la máquina (cuerpo, brazos y perilla)
-     * la primera vez que realmente se necesitan mostrar, evitando abrir
-     * la ventana del Canvas si la máquina nunca llega a hacerse visible.
-     */
     private void crearFiguras(){
         if (!figurasCreadas){
+            int margenX = Medida.MARGEN_X.getValor();
+            int margenY = Medida.MARGEN_Y.getValor();
             machine = new Rectangle();
             machine.changeColor("gray");
             machine.changeSize(120, 120);
-            machine.moveHorizontal(MARGIN_X);
-            machine.moveVertical(MARGIN_Y);
+            machine.moveHorizontal(margenX);
+            machine.moveVertical(margenY);
     
             brazoVertical = new Rectangle();
             brazoVertical.changeColor("gray");
             brazoVertical.changeSize(100, 15);
-            brazoVertical.moveHorizontal(MARGIN_X - 30);
-            brazoVertical.moveVertical(MARGIN_Y + 10);
+            brazoVertical.moveHorizontal(margenX - 30);
+            brazoVertical.moveVertical(margenY + 10);
     
             brazoHorizontal = new Rectangle();
             brazoHorizontal.changeColor("gray");
             brazoHorizontal.changeSize(15, 30);
-            brazoHorizontal.moveHorizontal(MARGIN_X - 30);
-            brazoHorizontal.moveVertical(MARGIN_Y + 95);
+            brazoHorizontal.moveHorizontal(margenX - 30);
+            brazoHorizontal.moveVertical(margenY + 95);
     
             perilla = new Circle();
             perilla.changeColor("red");
             perilla.changeSize(30);
-            perilla.moveHorizontal(MARGIN_X - 38);
-            perilla.moveVertical(MARGIN_Y);
+            perilla.moveHorizontal(margenX - 38);
+            perilla.moveVertical(margenY);
     
             figurasCreadas = true;
             if (ganada){
                 pintarCelebracion(true);
-            }     
+            }
         }
     }
     
@@ -160,7 +151,7 @@ public class SlotMachine
      */
     public void addWheel(int pos)
     {
-        addWheel(pos, "normal");
+        addWheel("normal", pos);
     }
 
     /**
@@ -172,20 +163,20 @@ public class SlotMachine
      * @param pos la posicion deseada para la nueva rueda
      * @param tipo el tipo de rueda que se desea agregar
      */
-    public void addWheel(int pos, String tipo)
+    public void addWheel(String type, int pos)
     {
         if (!isCerrada()){
             Wheel wheel;
-            if (tipo.equals("normal")){
+            if ("normal".equals(type)){
                 wheel = new NormalWheel(symbols.size());
             }
-            else if (tipo.equals("lefty")){
+            else if ("lefty".equals(type)){
                 wheel = new LeftyWheel(symbols.size());
             }
-            else if (tipo.equals("rebel")){
+            else if ("rebel".equals(type)){
                 wheel = new RebelWheel(symbols.size());
             }
-            else if (tipo.equals("lazy")){
+            else if ("lazy".equals(type)){
                 wheel = new LazyWheel(symbols.size());
             }
             else {
@@ -208,10 +199,6 @@ public class SlotMachine
             actualizar();
             verificarJackpot();
         }
-    }
-    
-    public void addWheel(String type, int pos){
-        
     }
     
     /**
@@ -450,6 +437,22 @@ public class SlotMachine
     }
     
     /**
+     * Dice si el color es uno de los que se pueden usar en un simbolo.
+     *
+     * @param color el color que se quiere revisar
+     * @return true si el color esta disponible, false si no (o si es null)
+     */
+    private boolean colorDisponible(String color){
+        String[] colores = {"red", "black", "blue", "yellow", "green", "white", "orange", "cyan"};
+        for (int i = 0; i < colores.length; i++){
+            if (colores[i].equals(color)){
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
      * Agrega un simbolo del tipo indicado en la posicion indicada.
      * Los tipos son "normal", "ephemeral" y "shy". El simbolo solo se
      * agrega si el tipo existe, el color esta disponible y no esta repetido.
@@ -469,14 +472,7 @@ public class SlotMachine
                 showMessage("Accion no permitida: El tipo de simbolo no existe.");
                 ok = false;
             }
-            else if (!color.equals("red") &&
-                !color.equals("black") &&
-                !color.equals("blue") &&
-                !color.equals("yellow") &&
-                !color.equals("green") &&
-                !color.equals("white") &&
-                !color.equals("orange") &&
-                !color.equals("cyan")){
+            else if (!colorDisponible(color)){
                 showMessage("Accion no permitida: El color no esta disponible.");
                 ok = false;
             }
@@ -485,14 +481,25 @@ public class SlotMachine
                 ok = false;
             }
             else {
+                int idx;
                 if (pos > symbols.size()){
-                    symbols.add(symbol);
+                    idx = symbols.size();
                 }
                 else if (pos <= 1){
-                    symbols.add(0, symbol);
+                    idx = 0;
                 }
                 else {
-                    symbols.add(pos - 1, symbol);
+                    idx = pos - 1;
+                }
+                boolean habiaSimbolos = !symbols.isEmpty();
+                symbols.add(idx, symbol);
+                if (habiaSimbolos){
+                    for (int i = 0; i < wheels.size(); i++){
+                        int actual = wheels.get(i).getVisibleIndex();
+                        if (actual >= idx){
+                            wheels.get(i).setVisibleIndex(actual + 1);
+                        }
+                    }
                 }
                 ok = true;
             }
@@ -576,15 +583,10 @@ public class SlotMachine
         }
     }    
     
-    /**
-     * Le avisa al simbolo que muestra una rueda que fue seleccionado.
-     *
-     * @param index la posicion de la rueda en la lista (empieza en 0)
-     */
     private void avisarSeleccion(int index){
         if (!symbols.isEmpty()){
-            int idx = wheels.get(index).getVisibleIndex();
-            symbols.get(idx).seleccionado();
+            Wheel rueda = wheels.get(index);
+            symbols.get(rueda.getVisibleIndex()).seleccionado(rueda);
         }
     }
     
@@ -612,8 +614,10 @@ public class SlotMachine
             // entre 0 (incluido) y symbols.size() (excluido). Este metodo fue consultado desde la API de JAVA
             int randomIndex = random.nextInt(symbols.size());
             Wheel izquierda = wheel > 1 ? wheels.get(wheel - 2) : null;
-            wheels.get(wheel - 1).girar(randomIndex, izquierda);
-            avisarSeleccion(wheel - 1);
+            boolean seMovio = wheels.get(wheel - 1).girar(randomIndex, izquierda);
+            if (seMovio){
+                avisarSeleccion(wheel - 1);
+            }
         }
     }
     
@@ -681,6 +685,7 @@ public class SlotMachine
                 }
             }
             avisarSeleccion(wheel - 1);
+            actualizar();
             girada = true;
             ok = true;
             verificarJackpot();
@@ -851,14 +856,12 @@ public class SlotMachine
             machine.changeSize(120, 120);
         }
         else {
-            int anchoTotal = GAP * (wheels.size() + 1) + WHEEL_WIDTH * wheels.size();
+            int separacion = Medida.SEPARACION.getValor();
+            int anchoRueda = Medida.ANCHO_RUEDA.getValor();
+            int anchoTotal = separacion * (wheels.size() + 1) + anchoRueda * wheels.size();
             machine.changeSize(120, anchoTotal);
             for (int i=0; i < wheels.size(); i++){
-                wheels.get(i).setPosition(MARGIN_X + GAP + i * (WHEEL_WIDTH + GAP), MARGIN_Y + 25);
-                if (!symbols.isEmpty()){
-                    int idx = wheels.get(i).getVisibleIndex();
-                    wheels.get(i).changeColor(symbols.get(idx).getColor());
-                }
+                wheels.get(i).setPosition(Medida.MARGEN_X.getValor() + separacion + i * (anchoRueda + separacion), Medida.MARGEN_Y.getValor() + 25);
             }
         }
 
@@ -867,10 +870,30 @@ public class SlotMachine
         brazoHorizontal.makeVisible();
         perilla.makeVisible();
         for (int i=0; i < wheels.size(); i++){
-            wheels.get(i).makeVisible(!symbols.isEmpty());
+            dibujarRueda(i);
         }
     }
-
+    
+    /**
+     * Dibuja la rueda i con la forma, el color, el tamano y la visibilidad
+     * del simbolo que muestra.
+     *
+     * @param i la posicion de la rueda en la lista (empieza en 0)
+     */
+    private void dibujarRueda(int i){
+        Wheel rueda = wheels.get(i);
+        if (symbols.isEmpty()){
+            rueda.makeVisible(false);
+        }
+        else {
+            Symbol simbolo = symbols.get(rueda.getVisibleIndex());
+            rueda.setForma(simbolo.getForma());
+            rueda.changeColor(simbolo.getColor());
+            rueda.changeSymbolSize(simbolo.getTamano(rueda));
+            rueda.makeVisible(simbolo.esVisible(rueda));        
+        }
+    }
+    
     /**
      * Hace visible la máquina tragamonedas junto con todos sus componentes
      * gráficos (cuerpo, brazos, perilla y ruedas). 
@@ -971,12 +994,8 @@ public class SlotMachine
             brazoVertical.changeColor(colorCuerpo);
             perilla.changeColor(colorPerilla);
             // Redibujar las ruedas encima del cuerpo
-            if (!symbols.isEmpty()){
-                for (int i = 0; i < wheels.size(); i++){
-                    int idx = wheels.get(i).getVisibleIndex();
-                    wheels.get(i).changeColor(symbols.get(idx).getColor());
-                    wheels.get(i).makeVisible(true);
-                }
+            for (int i = 0; i < wheels.size(); i++){
+                dibujarRueda(i);
             }
         }
     }

@@ -25,4 +25,13 @@ public class NormalWheel extends Wheel
     public String getTipo(){
         return "normal";
     }
+    /**
+     * Dice de que color se dibuja el cuerpo de la rueda normal.
+     *
+     * @return el texto "magenta"
+     */
+    @Override
+    public String getColorCuerpo(){
+        return "magenta";
+    }
 }
