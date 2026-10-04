@@ -9,7 +9,13 @@ public abstract class Wheel
 {
     private int visibleIndex;
     private Rectangle wheelFigure;
-    private Circle symbolFigure;
+    private Circle circuloFigure;
+    private Rectangle cuadradoFigure;
+    private Triangle trianguloFigure;
+    private String forma = "circulo";
+    private String colorSimbolo = "red";
+    private int tamanoSimbolo = Medida.TAMANO_SIMBOLO.getValor();
+    private int desplazamientoCuadrado = 0;
     private boolean locked;
     private boolean figurasCreadas;
     private int currentX;
@@ -38,20 +44,30 @@ public abstract class Wheel
     }
     
     /**
-     * Crea las figuras gráficas de la rueda (el rectángulo y el círculo
-     * del símbolo) la primera vez que se necesitan mostrar o modificar.
-     * Si ya fueron creadas, no hace nada.
+     * Crea las figuras de la rueda: el cuerpo y una figura por cada forma
+     * de simbolo (circulo, cuadrado y triangulo). Solo se crean la primera vez.
      */
     private void crearFiguras()
     {
         if (!figurasCreadas){
+            int ancho = Medida.ANCHO_RUEDA.getValor();
+            int tamano = Medida.TAMANO_SIMBOLO.getValor();
+            int margen = (ancho - tamano) / 2;   // lo que separa el simbolo del borde de la rueda
             wheelFigure = new Rectangle();
-            symbolFigure = new Circle();
-            wheelFigure.changeSize(70, 70);
-            symbolFigure.moveHorizontal(20);
-            symbolFigure.moveVertical(20);
+            wheelFigure.changeSize(ancho, ancho);
+            wheelFigure.changeColor(getColorCuerpo());
+            circuloFigure = new Circle();
+            circuloFigure.moveHorizontal(margen);
+            circuloFigure.moveVertical(margen);
+            cuadradoFigure = new Rectangle();
+            cuadradoFigure.moveHorizontal(margen);
+            cuadradoFigure.moveVertical(margen);
+            // La x del triangulo es su centro: el margen mas la mitad del simbolo
+            trianguloFigure = new Triangle();
+            trianguloFigure.moveHorizontal(margen + tamano / 2);
+            trianguloFigure.moveVertical(margen);
             figurasCreadas = true;
-        }
+        }        
     }
 
     /**
@@ -74,20 +90,15 @@ public abstract class Wheel
         visibleIndex = index;
     }
     
-    /**
-     * Cambia el color del símbolo circular dentro de la rueda.
-     * Crea las figuras si aún no existían.
-     *
-     * @param color nuevo color del símbolo (ej. "red", "blue", "green").
-     */
     public void changeColor(String color){
         crearFiguras();
-        symbolFigure.changeColor(color);
+        colorSimbolo = color;
     }
     
     /**
      * Establece la posición de la rueda en coordenadas (x, y).
-     * Mueve tanto el rectángulo como el círculo a la nueva ubicación.
+     * Mueve el cuerpo de la rueda y las figuras del simbolo
+     * (circulo, cuadrado y triangulo) a la nueva ubicación.
      * Crea las figuras si aún no existían.
      *
      * @param x nueva posición en el eje X.
@@ -96,14 +107,16 @@ public abstract class Wheel
     public void setPosition(int x, int y)
     {
         crearFiguras();
-        wheelFigure.moveHorizontal(-currentX);
-        wheelFigure.moveVertical(-currentY);
-        symbolFigure.moveHorizontal(-currentX);
-        symbolFigure.moveVertical(-currentY);
-        wheelFigure.moveHorizontal(x);
-        wheelFigure.moveVertical(y);
-        symbolFigure.moveHorizontal(x);
-        symbolFigure.moveVertical(y);
+        int dx = x - currentX;
+        int dy = y - currentY;
+        wheelFigure.moveHorizontal(dx);
+        wheelFigure.moveVertical(dy);
+        circuloFigure.moveHorizontal(dx);
+        circuloFigure.moveVertical(dy);
+        cuadradoFigure.moveHorizontal(dx);
+        cuadradoFigure.moveVertical(dy);
+        trianguloFigure.moveHorizontal(dx);
+        trianguloFigure.moveVertical(dy);
         currentX = x;
         currentY = y;
     }
@@ -142,17 +155,60 @@ public abstract class Wheel
     }
     
     /**
-     * Muestra la rueda en pantalla. Si el parámetro es verdadero,
-     * también muestra el símbolo dentro de la rueda.
-     * Crea las figuras si aún no existían.
-     * 
-     * @param flag true para mostrar el símbolo, false para ocultarlo.
+     * Cambia la forma del simbolo: "circulo", "cuadrado" o "triangulo".
+     * Se ve cuando se llama makeVisible.
+     *
+     * @param forma la nueva forma
      */
+    public void setForma(String forma){
+        crearFiguras();
+        this.forma = forma;
+    }
+    
+    /**
+     * Cambia el tamano del simbolo. Se ve cuando se llama makeVisible.
+     *
+     * @param size el nuevo tamano
+     */
+    public void changeSymbolSize(int size){
+        crearFiguras();
+        tamanoSimbolo = size;
+    }
+    
+    /**
+     * Oculta las tres figuras del simbolo.
+     */
+    private void ocultarSimbolo(){
+        circuloFigure.makeInvisible();
+        cuadradoFigure.makeInvisible();
+        trianguloFigure.makeInvisible();
+    }
+    
     public void makeVisible(boolean flag){
         crearFiguras();
         wheelFigure.makeVisible();
+        ocultarSimbolo();
         if (flag){
-            symbolFigure.makeVisible();
+            if (forma.equals("cuadrado")){
+            // Se mueve la mitad de lo que se achico para que quede en el centro IA generativa
+            int desplazamiento = (Medida.TAMANO_SIMBOLO.getValor() - tamanoSimbolo) / 2;
+            cuadradoFigure.changeSize(tamanoSimbolo, tamanoSimbolo);
+            cuadradoFigure.moveHorizontal(desplazamiento - desplazamientoCuadrado);
+            cuadradoFigure.moveVertical(desplazamiento - desplazamientoCuadrado);
+            desplazamientoCuadrado = desplazamiento;
+            cuadradoFigure.changeColor(colorSimbolo);
+            cuadradoFigure.makeVisible();
+            }
+            else if (forma.equals("triangulo")){
+                trianguloFigure.changeSize(tamanoSimbolo, tamanoSimbolo);
+                trianguloFigure.changeColor(colorSimbolo);
+                trianguloFigure.makeVisible();
+            }
+            else {
+                circuloFigure.changeSize(tamanoSimbolo);
+                circuloFigure.changeColor(colorSimbolo);
+                circuloFigure.makeVisible();
+            }
         }
     }
     
@@ -163,7 +219,7 @@ public abstract class Wheel
     public void makeInvisible(){
         if (figurasCreadas){
             wheelFigure.makeInvisible();
-            symbolFigure.makeInvisible();
+            ocultarSimbolo();
         }
     }
     
@@ -173,9 +229,11 @@ public abstract class Wheel
      *
      * @param indiceAleatorio el indice sorteado por la maquina
      * @param izquierda la rueda que esta a su izquierda, o null si no hay
+     * @return true si la rueda se movio, false si se quedo quieta
      */
-    public void girar(int indiceAleatorio, Wheel izquierda){
+    public boolean girar(int indiceAleatorio, Wheel izquierda){
         visibleIndex = indiceAleatorio;
+        return true;
     }
     
     public boolean puedeIntercambiarse(){
@@ -185,6 +243,14 @@ public abstract class Wheel
     public boolean puedeEliminarse(){
         return true;
     }
+    
+    /**
+     * Devuelve el color con el que se dibuja el cuerpo de la rueda.
+     * Cada tipo de rueda tiene el suyo.
+     *
+     * @return el color del cuerpo
+     */
+    public abstract String getColorCuerpo();
     
     public abstract String getTipo();
 }

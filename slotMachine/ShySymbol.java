@@ -1,3 +1,5 @@
+import java.util.Set;
+import java.util.HashSet;
 /**
  * El simbolo shy: es timido, cada vez que lo seleccionan alterna
  * entre visible e invisible.
@@ -6,7 +8,7 @@
  * @version 1.0 (octubre 2026)
  */
 public class ShySymbol extends Symbol{
-    private boolean visible;
+    private Set<Wheel> ocultoEn;
     /**
      * Crea un simbolo shy con el color dado.
      * Empieza visible.
@@ -15,26 +17,34 @@ public class ShySymbol extends Symbol{
      */
     public ShySymbol(String color){
         super(color);
-        visible = true;
+        ocultoEn = new HashSet<Wheel>();
     }
-    
-     /**
-     * Cada vez que lo seleccionan cambia de visible a invisible,
-     * o de invisible a visible.
+
+    /**
+     * Cada vez que una rueda lo selecciona, en esa rueda cambia de visible
+     * a invisible o de invisible a visible. Las otras ruedas no se afectan.
+     *
+     * @param rueda la rueda que lo selecciono
      */
     @Override
-    public void seleccionado(){
-        visible = !visible;
+    public void seleccionado(Wheel rueda){
+        if (ocultoEn.contains(rueda)){
+            ocultoEn.remove(rueda);
+        }
+        else {
+            ocultoEn.add(rueda);
+        }
     }  
     
-     /**
-     * Dice si el simbolo se ve en este momento.
+    /**
+     * Dice si el simbolo se ve en la rueda dada.
      *
-     * @return true si esta visible, false si esta invisible
+     * @param rueda la rueda que muestra el simbolo
+     * @return true si esta visible en esa rueda, false si esta invisible
      */
     @Override
-    public boolean esVisible(){
-        return visible;
+    public boolean esVisible(Wheel rueda){
+        return !ocultoEn.contains(rueda);
     }
     
     /**
@@ -44,5 +54,15 @@ public class ShySymbol extends Symbol{
      */
     public String getTipo(){
         return "shy";
+    }
+    
+    /**
+     * El simbolo shy se dibuja como un triangulo.
+     *
+     * @return el texto "triangulo"
+     */
+    @Override
+    public String getForma(){
+        return "triangulo";
     }
 }

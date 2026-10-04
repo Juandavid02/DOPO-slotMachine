@@ -7,7 +7,6 @@
 public abstract class Symbol
 {
     protected String color;
-    protected static final int TAMANO_NORMAL = 30;
 
     /**
      * Crea un simbolo con el color dado.
@@ -30,27 +29,38 @@ public abstract class Symbol
     /**
      * Se llama cuando una rueda queda mostrando este simbolo.
      * Por defecto no hace nada.
+     *
+     * @param rueda la rueda que lo selecciono
      */
-    public void seleccionado(){
+    public void seleccionado(Wheel rueda){
     }
     
     /**
-     * Devuelve el tamano del simbolo.
+     * Devuelve el tamano del simbolo en la rueda dada.
      *
+     * @param rueda la rueda que muestra el simbolo
      * @return el tamano del simbolo
      */
-    public int getTamano(){
-        return TAMANO_NORMAL;
+    public int getTamano(Wheel rueda){
+        return Medida.TAMANO_SIMBOLO.getValor();
     }
     
     /**
-     * Dice si el simbolo se debe ver o no.
+     * Dice si el simbolo se debe ver en la rueda dada.
      *
+     * @param rueda la rueda que muestra el simbolo
      * @return true si se ve, false si no
      */
-    public boolean esVisible(){
+    public boolean esVisible(Wheel rueda){
         return true;
     }
+    
+    /**
+     * Devuelve la forma con la que se dibuja el simbolo.
+     *
+     * @return "circulo", "cuadrado" o "triangulo"
+     */
+    public abstract String getForma();
     
     /**
      * Dice que tipo de simbolo es.

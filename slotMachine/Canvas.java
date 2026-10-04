@@ -134,6 +134,12 @@ public class Canvas{
             graphic.setColor(Color.cyan);
         else if(colorString.equals("gray"))
             graphic.setColor(Color.gray);
+        else if (colorString.equals("pink"))
+            graphic.setColor(Color.PINK);
+        else if (colorString.equals("brown"))
+            graphic.setColor(new Color(139, 69, 19)); //IA generativa Para poder tener el color cafe
+        else if (colorString.equals("lightGray"))
+            graphic.setColor(Color.LIGHT_GRAY);            
         else
             graphic.setColor(Color.black);
     }

@@ -15,7 +15,24 @@ public class NormalSymbol extends Symbol
         super(color);
     }
     
+    /**
+     * Dice que tipo de simbolo es.
+     *
+     * @return el texto "normal"
+     */
+    @Override
     public String getTipo(){
         return "normal";
     }
+    
+    /**
+     * El simbolo normal se dibuja como un circulo.
+     *
+     * @return el texto "circulo"
+     */
+    @Override
+    public String getForma(){
+        return "circulo";
+    }
+    
 }

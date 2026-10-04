@@ -37,12 +37,25 @@ public class LazyWheel extends Wheel
      *
      * @param indiceAleatorio el indice sorteado por la maquina
      * @param izquierda la rueda que esta a su izquierda, o null si no hay
+     * @return true si esta vez se movio, false si se quedo quieta
      */
     @Override
-    public void girar(int indiceAleatorio, Wheel izquierda){
+    public boolean girar(int indiceAleatorio, Wheel izquierda){
+        boolean seMovio = gira;
         if (gira){
             setVisibleIndex(indiceAleatorio);
         }
         gira = !gira;
+        return seMovio;
+    }
+    
+    /**
+     * Dice de que color se dibuja el cuerpo de la rueda lefty.
+     *
+     * @return el texto "pink"
+     */
+    @Override
+    public String getColorCuerpo(){
+        return "lightGray";
     }
 }
